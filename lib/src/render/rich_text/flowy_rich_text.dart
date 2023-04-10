@@ -1,22 +1,8 @@
-import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/core/location/position.dart';
-import 'package:appflowy_editor/src/core/location/selection.dart';
-import 'package:appflowy_editor/src/core/document/text_delta.dart';
-import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
-import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
-import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
-
-import 'package:appflowy_editor/src/render/selection/selectable.dart';
-import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 
 const _kRichTextDebugMode = false;
 
@@ -239,59 +225,19 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
 
   TextSpan get _textSpan {
     var offset = 0;
-    List<TextSpan> textSpans = [];
-    final style = widget.editorState.editorStyle;
+    List<InlineSpan> textSpans = [];
     final textInserts = widget.textNode.delta.whereType<TextInsert>();
     for (final textInsert in textInserts) {
-      var textStyle = style.textStyle!;
-      GestureRecognizer? recognizer;
-      final attributes = textInsert.attributes;
-      if (attributes != null) {
-        if (attributes.bold == true) {
-          textStyle = textStyle.combine(style.bold);
-        }
-        if (attributes.italic == true) {
-          textStyle = textStyle.combine(style.italic);
-        }
-        if (attributes.underline == true) {
-          textStyle = textStyle.combine(style.underline);
-        }
-        if (attributes.strikethrough == true) {
-          textStyle = textStyle.combine(style.strikethrough);
-        }
-        if (attributes.href != null) {
-          textStyle = textStyle.combine(style.href);
-          recognizer = _buildTapHrefGestureRecognizer(
-            attributes.href!,
-            Selection.single(
-              path: widget.textNode.path,
-              startOffset: offset,
-              endOffset: offset + textInsert.length,
-            ),
-          );
-        }
-        if (attributes.code == true) {
-          textStyle = textStyle.combine(style.code);
-        }
-        if (attributes.backgroundColor != null) {
-          textStyle = textStyle.combine(
-            TextStyle(backgroundColor: attributes.backgroundColor),
-          );
-        }
-        if (attributes.color != null) {
-          textStyle = textStyle.combine(
-            TextStyle(color: attributes.color),
-          );
-        }
-      }
+      final builder =
+          widget.editorState.service.renderPluginService.textInsertBuilder;
+      final textInsertContext = TextInsertContext(
+          context: context,
+          textNode: widget.textNode,
+          textInsert: textInsert,
+          editorState: widget.editorState,
+          offset: offset);
+      textSpans.add(builder.build(textInsertContext));
       offset += textInsert.length;
-      textSpans.add(
-        TextSpan(
-          text: textInsert.text,
-          style: textStyle,
-          recognizer: recognizer,
-        ),
-      );
     }
     if (_kRichTextDebugMode) {
       textSpans.add(
@@ -307,39 +253,5 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
     return TextSpan(
       children: textSpans,
     );
-  }
-
-  GestureRecognizer _buildTapHrefGestureRecognizer(
-    String href,
-    Selection selection,
-  ) {
-    Timer? timer;
-    var tapCount = 0;
-    final tapGestureRecognizer = TapGestureRecognizer()
-      ..onTap = () async {
-        // implement a simple double tap logic
-        tapCount += 1;
-        timer?.cancel();
-
-        if (tapCount == 2 || !widget.editorState.editable) {
-          tapCount = 0;
-          safeLaunchUrl(href);
-          return;
-        }
-
-        timer = Timer(const Duration(milliseconds: 200), () {
-          tapCount = 0;
-          widget.editorState.service.selectionService
-              .updateSelection(selection);
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            showLinkMenu(
-              context,
-              widget.editorState,
-              customSelection: selection,
-            );
-          });
-        });
-      };
-    return tapGestureRecognizer;
   }
 }
