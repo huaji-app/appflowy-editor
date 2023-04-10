@@ -135,7 +135,8 @@ class _AppFlowyInputState extends State<AppFlowyInput>
       } else if (delta is TextEditingDeltaReplacement) {
         _applyReplacement(delta);
       } else if (delta is TextEditingDeltaNonTextUpdate) {
-        _applyNonTextUpdate(delta);
+        // this will make cursor wrong on desktop;
+        // _applyNonTextUpdate(delta);
       }
     }
   }
@@ -218,8 +219,6 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     final selectionService = _editorState.service.selectionService;
     final currentSelection = selectionService.currentSelection.value;
     if (currentSelection == null) return;
-
-    print("noncursor: ${delta.selection}");
 
     final newSelection = Selection(
         start: Position(
