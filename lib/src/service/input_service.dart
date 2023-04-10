@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:flutter/foundation.dart';
@@ -133,7 +134,9 @@ class _AppFlowyInputState extends State<AppFlowyInput>
         _applyDelete(delta);
       } else if (delta is TextEditingDeltaReplacement) {
         _applyReplacement(delta);
-      } else if (delta is TextEditingDeltaNonTextUpdate) {}
+      } else if (delta is TextEditingDeltaNonTextUpdate) {
+        _applyNonTextUpdate(delta);
+      }
     }
   }
 
@@ -209,6 +212,23 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     } else {
       // TODO: implement
     }
+  }
+
+  void _applyNonTextUpdate(TextEditingDeltaNonTextUpdate delta) {
+    final selectionService = _editorState.service.selectionService;
+    final currentSelection = selectionService.currentSelection.value;
+    if (currentSelection == null) return;
+
+    print("noncursor: ${delta.selection}");
+
+    final newSelection = Selection(
+        start: Position(
+            path: currentSelection.start.path,
+            offset: delta.selection.baseOffset),
+        end: Position(
+            path: currentSelection.end.path,
+            offset: delta.selection.baseOffset));
+    selectionService.updateSelection(newSelection);
   }
 
   @override
