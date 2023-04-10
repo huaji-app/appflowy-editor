@@ -95,7 +95,6 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
       onPointerPanZoomUpdate: _onPointerPanZoomUpdate,
       child: CustomScrollView(
         key: _scrollViewKey,
-        physics: const NeverScrollableScrollPhysics(),
         controller: _scrollController,
         slivers: [
           SliverFillRemaining(
