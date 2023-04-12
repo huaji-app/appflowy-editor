@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/core/transform/transaction.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/enter_without_shift_in_text_node_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -113,6 +114,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
           enableDeltaModel: true,
           inputType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
+          inputAction: TextInputAction.newline,
         ),
       );
     }
@@ -160,6 +162,10 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     final selectionService = _editorState.service.selectionService;
     final currentSelection = selectionService.currentSelection.value;
     if (currentSelection == null) {
+      return;
+    }
+    if (delta.textInserted == "\n") {
+      enterWithoutShiftInTextNodesHandler(_editorState, null);
       return;
     }
     if (currentSelection.isSingle) {
