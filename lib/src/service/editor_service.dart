@@ -8,7 +8,7 @@ import 'package:appflowy_editor/src/render/rich_text/heading_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/number_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/quoted_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_insert.dart';
+import 'package:appflowy_editor/src/render/rich_text/rich_text_span.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
@@ -28,7 +28,7 @@ class AppFlowyEditor extends StatefulWidget {
     Key? key,
     required this.editorState,
     this.customBuilders = const {},
-    this.customTextInsertBuilder,
+    this.customTextSpanBuilder,
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
     this.toolbarItems = const [],
@@ -54,7 +54,7 @@ class AppFlowyEditor extends StatefulWidget {
   /// Render plugins.
   final NodeWidgetBuilders customBuilders;
 
-  final TextInsertBuilder? customTextInsertBuilder;
+  final TextSpanBuilder? customTextSpanBuilder;
 
   /// Keyboard event handlers.
   final List<ShortcutEvent> shortcutEvents;
@@ -201,8 +201,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
           ...defaultBuilders,
           ...widget.customBuilders,
         },
-        textInsertBuilder:
-            widget.customTextInsertBuilder ?? RichTextInsertBuilder(),
+        textSpanBuilder: widget.customTextSpanBuilder ?? RichTextSpanBuilder(),
         customActionMenuBuilder: widget.customActionMenuBuilder,
       );
 }

@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/render/action_menu/action_menu.dart';
 import 'package:appflowy_editor/src/render/action_menu/action_menu_item.dart';
+import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,10 +14,6 @@ abstract class NodeWidgetBuilder<T extends Node> {
   NodeValidator get nodeValidator;
 
   Widget build(NodeWidgetContext<T> context);
-}
-
-abstract class TextInsertBuilder {
-  InlineSpan build(TextInsertContext context);
 }
 
 typedef NodeWidgetBuilders = Map<String, NodeWidgetBuilder>;
@@ -66,22 +63,6 @@ class NodeWidgetContext<T extends Node> {
   }
 }
 
-class TextInsertContext {
-  final BuildContext context;
-  final TextNode textNode;
-  final TextInsert textInsert;
-  final EditorState editorState;
-  final int offset;
-
-  TextInsertContext({
-    required this.context,
-    required this.textNode,
-    required this.textInsert,
-    required this.editorState,
-    required this.offset,
-  });
-}
-
 class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
   final Positioned Function(BuildContext context, List<ActionMenuItem> items)?
       customActionMenuBuilder;
@@ -89,7 +70,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
   AppFlowyRenderPlugin({
     required this.editorState,
     required NodeWidgetBuilders builders,
-    required this.textInsertBuilder,
+    required this.textSpanBuilder,
     this.customActionMenuBuilder,
   }) {
     registerAll(builders);
@@ -97,7 +78,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
 
   final NodeWidgetBuilders _builders = {};
 
-  final TextInsertBuilder textInsertBuilder;
+  final TextSpanBuilder textSpanBuilder;
 
   final EditorState editorState;
 

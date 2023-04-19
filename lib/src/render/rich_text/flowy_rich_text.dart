@@ -4,9 +4,19 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-const _kRichTextDebugMode = false;
-
 typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
+
+abstract class TextSpanBuilder {
+  TextSpan build(TextSpanContext context);
+}
+
+class TextSpanContext {
+  final _FlowyRichTextState state;
+
+  TextSpanContext({
+    required this.state,
+  });
+}
 
 class FlowyRichText extends StatefulWidget {
   const FlowyRichText({
@@ -43,6 +53,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
 
   RenderParagraph? get _placeholderRenderParagraph =>
       _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
+
+  Map props = {};
 
   @override
   void didUpdateWidget(covariant FlowyRichText oldWidget) {
@@ -224,34 +236,9 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   }
 
   TextSpan get _textSpan {
-    var offset = 0;
-    List<InlineSpan> textSpans = [];
-    final textInserts = widget.textNode.delta.whereType<TextInsert>();
-    for (final textInsert in textInserts) {
-      final builder =
-          widget.editorState.service.renderPluginService.textInsertBuilder;
-      final textInsertContext = TextInsertContext(
-          context: context,
-          textNode: widget.textNode,
-          textInsert: textInsert,
-          editorState: widget.editorState,
-          offset: offset);
-      textSpans.add(builder.build(textInsertContext));
-      offset += textInsert.length;
-    }
-    if (_kRichTextDebugMode) {
-      textSpans.add(
-        TextSpan(
-          text: '${widget.textNode.path}',
-          style: const TextStyle(
-            backgroundColor: Colors.red,
-            fontSize: 16.0,
-          ),
-        ),
-      );
-    }
-    return TextSpan(
-      children: textSpans,
-    );
+    final builder =
+        widget.editorState.service.renderPluginService.textSpanBuilder;
+    final textSpanContext = TextSpanContext(state: this);
+    return builder.build(textSpanContext);
   }
 }
