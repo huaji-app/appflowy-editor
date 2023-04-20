@@ -174,17 +174,12 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
                   ...builtInShortcutEvents,
                 ],
                 editorState: editorState,
-                child: FlowyToolbar(
-                  showDefaultToolbar: widget.showDefaultToolbar,
-                  key: editorState.service.toolbarServiceKey,
-                  editorState: editorState,
-                  child:
-                      editorState.service.renderPluginService.buildPluginWidget(
-                    NodeWidgetContext(
-                      context: context,
-                      node: editorState.document.root,
-                      editorState: editorState,
-                    ),
+                child:
+                    editorState.service.renderPluginService.buildPluginWidget(
+                  NodeWidgetContext(
+                    context: context,
+                    node: editorState.document.root,
+                    editorState: editorState,
                   ),
                 ),
               ),

@@ -147,7 +147,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     // Need to refresh the selection when the metrics changed.
     if (currentSelection.value != null) {
-      updateSelection(currentSelection.value!);
+      // updateSelection(currentSelection.value!);
     }
   }
 
