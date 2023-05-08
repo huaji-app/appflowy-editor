@@ -194,6 +194,19 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
     );
   }
 
+  TextAlign get textAlign {
+    switch (widget.textNode.attributes['align']) {
+      case "left":
+        return TextAlign.left;
+      case "center":
+        return TextAlign.center;
+      case "right":
+        return TextAlign.right;
+      default:
+        return TextAlign.left;
+    }
+  }
+
   Widget _buildPlaceholderText(BuildContext context) {
     final textSpan = _placeholderTextSpan;
     return RichText(
@@ -202,6 +215,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
         applyHeightToFirstAscent: false,
         applyHeightToLastDescent: false,
       ),
+      textAlign: textAlign,
       text: widget.placeholderTextSpanDecorator != null
           ? widget.placeholderTextSpanDecorator!(textSpan)
           : textSpan,
@@ -216,6 +230,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
         applyHeightToFirstAscent: false,
         applyHeightToLastDescent: false,
       ),
+      textAlign: textAlign,
       text: widget.textSpanDecorator != null
           ? widget.textSpanDecorator!(textSpan)
           : textSpan,

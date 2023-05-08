@@ -57,7 +57,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
 
   Widget _buildToolbar(BuildContext context) {
     return Material(
-      borderRadius: BorderRadius.circular(8.0),
+      borderRadius: BorderRadius.circular(4.0),
       color: widget.editorState.editorStyle.toolbarColor,
       elevation: widget.editorState.editorStyle.toolbarElevation,
       child: Padding(
