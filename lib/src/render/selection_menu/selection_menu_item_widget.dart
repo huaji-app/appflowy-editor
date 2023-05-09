@@ -48,15 +48,30 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuItemWidget> {
                   )
                 : MaterialStateProperty.all(Colors.transparent),
           ),
-          label: Text(
-            widget.item.name,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              color: (widget.isSelected || _onHover)
-                  ? editorStyle.selectionMenuItemSelectedTextColor
-                  : editorStyle.selectionMenuItemTextColor,
-              fontSize: 12.0,
-            ),
+          label: Row(
+            children: [
+              Text(
+                widget.item.name,
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: (widget.isSelected || _onHover)
+                      ? editorStyle.selectionMenuItemSelectedTextColor
+                      : editorStyle.selectionMenuItemTextColor,
+                  fontSize: 12.0,
+                ),
+              ),
+              Expanded(
+                  child: Text(
+                widget.item.shortcut ?? "",
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  color: (widget.isSelected || _onHover)
+                      ? editorStyle.selectionMenuItemSelectedTextColor
+                      : editorStyle.selectionMenuItemTextColor,
+                  fontSize: 12.0,
+                ),
+              )),
+            ],
           ),
           onPressed: () {
             widget.item

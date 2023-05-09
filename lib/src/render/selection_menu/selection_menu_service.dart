@@ -102,7 +102,6 @@ class SelectionMenu implements SelectionMenuService {
                 ..._defaultSelectionMenuItems,
                 ...editorState.selectionMenuItems,
               ],
-              maxItemInRow: 5,
               editorState: editorState,
               menuService: this,
               onExit: () {

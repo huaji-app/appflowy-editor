@@ -16,6 +16,7 @@ class SelectionMenuItem {
     required this.name,
     required this.icon,
     required this.keywords,
+    String? this.shortcut,
     required SelectionMenuItemHandler handler,
   }) {
     this.handler = (editorState, menuService, context) {
@@ -33,6 +34,7 @@ class SelectionMenuItem {
   ///
   /// The keywords are used to quickly retrieve items.
   final List<String> keywords;
+  final String? shortcut;
   late final SelectionMenuItemHandler handler;
 
   void _deleteSlash(EditorState editorState) {
@@ -71,6 +73,7 @@ class SelectionMenuItem {
     required String name,
     required IconData iconData,
     required List<String> keywords,
+    String? shortcut,
     required Node Function(EditorState editorState) nodeBuilder,
     bool Function(EditorState editorState, TextNode textNode)? insertBefore,
     bool Function(EditorState editorState, TextNode textNode)? replace,
@@ -92,6 +95,7 @@ class SelectionMenuItem {
         size: 18.0,
       ),
       keywords: keywords,
+      shortcut: shortcut,
       handler: (editorState, _, __) {
         final selection =
             editorState.service.selectionService.currentSelection.value;
@@ -140,7 +144,6 @@ class SelectionMenuWidget extends StatefulWidget {
   const SelectionMenuWidget({
     Key? key,
     required this.items,
-    required this.maxItemInRow,
     required this.editorState,
     required this.menuService,
     required this.onExit,
@@ -148,7 +151,6 @@ class SelectionMenuWidget extends StatefulWidget {
   }) : super(key: key);
 
   final List<SelectionMenuItem> items;
-  final int maxItemInRow;
 
   final SelectionMenuService menuService;
   final EditorState editorState;
@@ -248,18 +250,8 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     List<SelectionMenuItem> items,
     int selectedIndex,
   ) {
-    List<Widget> columns = [];
     List<Widget> itemWidgets = [];
     for (var i = 0; i < items.length; i++) {
-      if (i != 0 && i % (widget.maxItemInRow) == 0) {
-        columns.add(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: itemWidgets,
-          ),
-        );
-        itemWidgets = [];
-      }
       itemWidgets.add(
         SelectionMenuItemWidget(
           item: items[i],
@@ -269,19 +261,13 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
         ),
       );
     }
-    if (itemWidgets.isNotEmpty) {
-      columns.add(
-        Column(
+    return Container(
+        constraints: const BoxConstraints(maxHeight: 215),
+        child: SingleChildScrollView(
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: itemWidgets,
-        ),
-      );
-      itemWidgets = [];
-    }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: columns,
-    );
+        )));
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {
@@ -341,20 +327,10 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     }
 
     var newSelectedIndex = _selectedIndex;
-    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-      newSelectedIndex -= widget.maxItemInRow;
-    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-      newSelectedIndex += widget.maxItemInRow;
-    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
       newSelectedIndex -= 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       newSelectedIndex += 1;
-    } else if (event.logicalKey == LogicalKeyboardKey.tab) {
-      newSelectedIndex += widget.maxItemInRow;
-      var currRow = (newSelectedIndex) % widget.maxItemInRow;
-      if (newSelectedIndex >= _showingItems.length) {
-        newSelectedIndex = (currRow + 1) % widget.maxItemInRow;
-      }
     }
 
     if (newSelectedIndex != _selectedIndex) {
