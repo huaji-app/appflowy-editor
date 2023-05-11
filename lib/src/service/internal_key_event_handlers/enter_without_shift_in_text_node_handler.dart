@@ -15,6 +15,9 @@ import './number_list_helper.dart';
 ///   2.2 or insert a empty text node before.
 ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     (editorState, event) {
+  if (editorState.service.inputService?.isComposing ?? false) {
+    return KeyEventResult.ignored;
+  }
   var selection = editorState.service.selectionService.currentSelection.value;
   var nodes = editorState.service.selectionService.currentSelectedNodes;
   if (selection == null) {

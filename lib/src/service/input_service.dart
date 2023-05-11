@@ -26,6 +26,8 @@ import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 /// ```
 ///
 abstract class AppFlowyInputService {
+  bool get isComposing;
+
   /// Updates the [TextEditingValue] of the text currently being edited.
   ///
   /// Note that if there are IME-related requirements,
@@ -65,6 +67,10 @@ class _AppFlowyInputState extends State<AppFlowyInput>
   TextRange? _composingTextRange;
 
   EditorState get _editorState => widget.editorState;
+
+  bool get isComposing =>
+      _composingTextRange != null &&
+      _composingTextRange!.start != _composingTextRange!.end;
 
   // Disable space shortcut on the Web platform.
   final Map<ShortcutActivator, Intent> _shortcuts = kIsWeb
