@@ -75,6 +75,8 @@ class EditorState {
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;
 
+  bool showDefaultSelectionMenuItems = true;
+
   // TODO: only for testing.
   bool disableSealTimer = false;
   bool disableRules = false;

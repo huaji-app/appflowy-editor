@@ -99,7 +99,8 @@ class SelectionMenu implements SelectionMenuService {
             scrollDirection: Axis.horizontal,
             child: SelectionMenuWidget(
               items: [
-                ..._defaultSelectionMenuItems,
+                if (editorState.showDefaultSelectionMenuItems)
+                  ..._defaultSelectionMenuItems,
                 ...editorState.selectionMenuItems,
               ],
               editorState: editorState,

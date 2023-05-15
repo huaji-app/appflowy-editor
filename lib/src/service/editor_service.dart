@@ -37,6 +37,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.focusedSelection,
     this.customActionMenuBuilder,
     this.showDefaultToolbar = true,
+    this.showDefaultSelectionMenuItems = true,
     this.shrinkWrap = false,
     ThemeData? themeData,
   }) : super(key: key) {
@@ -59,6 +60,7 @@ class AppFlowyEditor extends StatefulWidget {
   /// Keyboard event handlers.
   final List<ShortcutEvent> shortcutEvents;
   final bool showDefaultToolbar;
+  final bool showDefaultSelectionMenuItems;
   final List<SelectionMenuItem> selectionMenuItems;
 
   final List<ToolbarItem> toolbarItems;
@@ -94,6 +96,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     super.initState();
 
     editorState.selectionMenuItems = widget.selectionMenuItems;
+    editorState.showDefaultSelectionMenuItems =
+        widget.showDefaultSelectionMenuItems;
     editorState.toolbarItems = widget.toolbarItems;
     editorState.themeData = widget.themeData;
     editorState.service.renderPluginService = _createRenderPlugin();
@@ -116,6 +120,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
 
     if (editorState.service != oldWidget.editorState.service) {
       editorState.selectionMenuItems = widget.selectionMenuItems;
+      editorState.showDefaultSelectionMenuItems =
+          widget.showDefaultSelectionMenuItems;
       editorState.toolbarItems = widget.toolbarItems;
       editorState.service.renderPluginService = _createRenderPlugin();
     }
