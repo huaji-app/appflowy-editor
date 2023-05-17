@@ -622,7 +622,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     min = min.clamp(start, end);
     final node = sortedNodes[min];
     if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
-      final children = node.children.toList(growable: false);
+      final children = node.children
+          .toList(growable: false)
+          .where((element) => element.key.currentContext != null)
+          .toList();
       return _getNodeInOffset(
         children,
         offset,
