@@ -19,6 +19,16 @@ ShortcutEventHandler backspaceEventHandler = (editorState, event) {
   final transaction = editorState.transaction;
   List<int>? cancelNumberListPath;
 
+  final parentNode = nodes.last.parent;
+  final currentTextNode = nodes.last;
+
+  if (currentTextNode is TextNode &&
+      currentTextNode.toPlainText() == "" &&
+      parentNode?.children.length == 1 &&
+      parentNode?.type != "editor") {
+    return KeyEventResult.handled;
+  }
+
   if (nonTextNodes.isNotEmpty) {
     transaction.deleteNodes(nonTextNodes);
   }
