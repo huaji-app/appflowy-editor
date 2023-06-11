@@ -3,6 +3,15 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
+const _kHtmlDescriptionTemplate =
+    '''
+Version:0.9
+StartHTML:0000000000
+EndHTML:0000000000
+StartFragment:0000000000
+EndFragment:0000000000
+''';
+
 class AppFlowyClipboardData {
   const AppFlowyClipboardData({
     required this.text,
@@ -44,7 +53,12 @@ class AppFlowyClipboard {
     if (!kIsWeb && Platform.isWindows && html != null) {
       html = html
           .replaceAll('<!--StartFragment-->', '')
-          .replaceAll('<!--EndFragment-->', '');
+          .replaceAll('<!--EndFragment-->', '')
+          .replaceAll(RegExp(r'Version:\d\.\d\n?'), '')
+          .replaceAll(RegExp(r'StartHTML:\d{10}\n?'), '')
+          .replaceAll(RegExp(r'EndHTML:\d{10}\n?'), '')
+          .replaceAll(RegExp(r'StartFragment:\d{10}\n?'), '')
+          .replaceAll(RegExp(r'EndFragment:\d{10}\n?'), '');
     }
 
     return AppFlowyClipboardData(
