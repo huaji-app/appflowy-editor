@@ -30,6 +30,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.header,
     this.footer,
     this.focusNode,
+    this.blockTypes = const [],
   })  : blockComponentBuilders =
             blockComponentBuilders ?? standardBlockComponentBuilderMap,
         characterShortcutEvents =
@@ -146,6 +147,8 @@ class AppFlowyEditor extends StatefulWidget {
   /// Notes: Must provide a scrollController when shrinkWrap is true.
   final bool shrinkWrap;
 
+  final List<String> blockTypes;
+
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
 }
@@ -238,6 +241,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
           characterShortcutEvents: widget.characterShortcutEvents,
           commandShortcutEvents: widget.commandShortcutEvents,
           focusNode: widget.focusNode,
+          blockTypes: widget.blockTypes,
           child: child,
         ),
       );

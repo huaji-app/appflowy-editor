@@ -12,6 +12,7 @@ class KeyboardServiceWidget extends StatefulWidget {
     super.key,
     this.commandShortcutEvents = const [],
     this.characterShortcutEvents = const [],
+    this.blockTypes = const [],
     this.focusNode,
     required this.child,
   });
@@ -19,6 +20,7 @@ class KeyboardServiceWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final List<CommandShortcutEvent> commandShortcutEvents;
   final List<CharacterShortcutEvent> characterShortcutEvents;
+  final List<String> blockTypes;
   final Widget child;
 
   @override
@@ -64,6 +66,7 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
       onDelete: (deletion) async => await onDelete(
         deletion,
         editorState,
+        widget.blockTypes,
       ),
       onReplace: (replacement) async => await onReplace(
         replacement,

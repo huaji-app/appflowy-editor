@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 Future<void> onDelete(
   TextEditingDeltaDeletion deletion,
   EditorState editorState,
+  List<String> blockTypes,
 ) async {
   Log.input.debug('onDelete: $deletion');
 
@@ -24,6 +25,16 @@ Future<void> onDelete(
       final transaction = editorState.transaction;
       transaction.deleteText(node, start, length);
       await editorState.apply(transaction);
+      return;
+    }
+    // 处理前一个元素是自定义 Node 的情况
+    final lastNode = node?.previous;
+
+    if (blockTypes.contains(lastNode?.type)) {
+      final transaction = editorState.transaction;
+      transaction.deleteNode(lastNode!);
+      await editorState.apply(transaction);
+      backspaceCommand.execute(editorState);
       return;
     }
   }
