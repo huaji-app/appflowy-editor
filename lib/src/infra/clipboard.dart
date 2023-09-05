@@ -2,14 +2,17 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
+import 'package:pasteboard/pasteboard.dart';
 
 class AppFlowyClipboardData {
   const AppFlowyClipboardData({
     this.text,
     this.html,
+    this.imageBytes,
   });
   final String? text;
   final String? html;
+  final Uint8List? imageBytes;
 }
 
 class AppFlowyClipboard {
@@ -39,6 +42,16 @@ class AppFlowyClipboard {
   static Future<AppFlowyClipboardData> getData() async {
     if (_mockData != null) {
       return _mockData!;
+    }
+
+    final imageBytes = await Pasteboard.image;
+
+    if (imageBytes != null) {
+      return AppFlowyClipboardData(
+        text: null,
+        html: null,
+        imageBytes: imageBytes,
+      );
     }
 
     final data = await RichClipboard.getData();

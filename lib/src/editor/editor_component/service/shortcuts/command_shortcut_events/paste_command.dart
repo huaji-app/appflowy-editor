@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/shortcuts/command_shortcut_events/copy_paste_extension.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +19,22 @@ final CommandShortcutEvent pasteCommand = CommandShortcutEvent(
   key: 'paste the content',
   command: 'ctrl+v',
   macOSCommand: 'cmd+v',
-  handler: _pasteCommandHandler,
+  handler: (editorState) {
+    return _pasteCommandHandler(editorState);
+  },
 );
+
+CommandShortcutEvent customPasteCommand({
+  required Function(Uint8List bytes) onImagePaste,
+}) {
+  return CommandShortcutEvent(
+    key: 'paste the content',
+    command: 'ctrl+v',
+    macOSCommand: 'cmd+v',
+    handler: (editorState) =>
+        _pasteCommandHandler(editorState, onImagePaste: onImagePaste),
+  );
+}
 
 final CommandShortcutEvent pasteTextWithoutFormattingCommand =
     CommandShortcutEvent(
@@ -47,7 +63,15 @@ CommandShortcutEventHandler _pasteTextWithoutFormattingCommandHandler =
   return KeyEventResult.handled;
 };
 
-CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
+KeyEventResult _pasteCommandHandler(
+  EditorState editorState, {
+  Function(Uint8List bytes)? onImagePaste,
+}) {
+  if (PlatformExtension.isMobile) {
+    assert(false, 'pasteCommand is not supported on mobile platform.');
+    return KeyEventResult.ignored;
+  }
+
   final selection = editorState.selection;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -57,7 +81,10 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     final data = await AppFlowyClipboard.getData();
     final text = data.text;
     final html = data.html;
-    if (html != null && html.isNotEmpty) {
+    final image = data.imageBytes;
+    if (image != null) {
+      onImagePaste?.call(image);
+    } else if (html != null && html.isNotEmpty) {
       await editorState.deleteSelectionIfNeeded();
       // if the html is pasted successfully, then return
       // otherwise, paste the plain text
@@ -73,7 +100,7 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
   }();
 
   return KeyEventResult.handled;
-};
+}
 
 RegExp _hrefRegex = RegExp(
   r'https?://(?:www\.)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(?:/[^\s]*)?',
