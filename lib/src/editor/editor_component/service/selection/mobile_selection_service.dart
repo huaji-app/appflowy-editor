@@ -90,6 +90,7 @@ class _MobileSelectionServiceWidgetState
       onTapUp: _onTapUp,
       onDoubleTapUp: _onDoubleTapUp,
       onTripleTapUp: _onTripleTapUp,
+      onLongPressStart: _onLongPressStart,
       child: widget.child,
     );
   }
@@ -220,10 +221,18 @@ class _MobileSelectionServiceWidgetState
   }
 
   void _onTapUp(TapUpDetails details) {
-    // final canTap = _interceptors.every(
-    //   (element) => element.canTap?.call(details) ?? true,
-    // );
-    // if (!canTap) return;
+    // 这里需要处理按住 handler 的场景，如果点击的是 handler 的位置，不需要处理
+
+    if (_isOverlayOnHandler(
+          details.globalPosition,
+          MobileSelectionHandlerType.cursorHandler,
+        ) ||
+        _isOverlayOnHandler(
+          details.globalPosition,
+          MobileSelectionHandlerType.rightHandler,
+        )) {
+      return;
+    }
 
     clearSelection();
 
@@ -261,6 +270,17 @@ class _MobileSelectionServiceWidgetState
       start: selectable.start(),
       end: selectable.end(),
     );
+    updateSelection(selection);
+  }
+
+  void _onLongPressStart(LongPressStartDetails details) {
+    final offset = details.globalPosition;
+    final node = getNodeInOffset(offset);
+    final selection = node?.selectable?.getWordBoundaryInOffset(offset);
+    if (selection == null) {
+      clearSelection();
+      return;
+    }
     updateSelection(selection);
   }
 

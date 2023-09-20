@@ -57,6 +57,7 @@ class _MobileEditorState extends State<MobileEditor> {
             editorScrollController: editorScrollController,
             toolbarBuilder: (context, anchor) {
               return AdaptiveTextSelectionToolbar.editable(
+                onLiveTextInput: null,
                 clipboardStatus: ClipboardStatus.pasteable,
                 onCopy: () => copyCommand.execute(editorState),
                 onCut: () => cutCommand.execute(editorState),
