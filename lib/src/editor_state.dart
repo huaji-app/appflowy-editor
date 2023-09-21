@@ -96,6 +96,10 @@ class EditorState {
   final PropertyValueNotifier<Selection?> selectionNotifier =
       PropertyValueNotifier<Selection?>(null);
 
+  /// The selection notifier of the editor.
+  final PropertyValueNotifier<Selection?> contextMenuNotifier =
+      PropertyValueNotifier<Selection?>(null);
+
   /// The selection of the editor.
   Selection? get selection => selectionNotifier.value;
 

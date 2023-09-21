@@ -226,6 +226,15 @@ class _MobileSelectionServiceWidgetState
     if (_isOverlayOnHandler(
           details.globalPosition,
           MobileSelectionHandlerType.cursorHandler,
+        ) &&
+        editorState.selection != null) {
+      editorState.contextMenuNotifier.value = editorState.selection;
+      return;
+    }
+
+    if (_isOverlayOnHandler(
+          details.globalPosition,
+          MobileSelectionHandlerType.cursorHandler,
         ) ||
         _isOverlayOnHandler(
           details.globalPosition,
@@ -274,14 +283,17 @@ class _MobileSelectionServiceWidgetState
   }
 
   void _onLongPressStart(LongPressStartDetails details) {
-    final offset = details.globalPosition;
-    final node = getNodeInOffset(offset);
-    final selection = node?.selectable?.getWordBoundaryInOffset(offset);
-    if (selection == null) {
-      clearSelection();
-      return;
+    final selection = editorState.selection;
+
+    if (selection == null || selection.isCollapsed) {
+      final position = getPositionInOffset(details.globalPosition);
+      if (position == null) {
+        return;
+      }
+
+      editorState.selection = Selection.collapsed(position);
+      editorState.contextMenuNotifier.value = editorState.selection;
     }
-    updateSelection(selection);
   }
 
   void _onPanStart(DragStartDetails details) {
