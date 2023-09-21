@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/render/selection/mobile_selection_widget.dar
 import 'package:appflowy_editor/src/service/selection/mobile_selection_gesture.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 
 enum MobileSelectionDragMode {
   none,
@@ -528,13 +529,23 @@ class _MobileSelectionServiceWidgetState
         break;
     }
 
-    const extend = 20.0;
+    final Rect interactiveRect = rect.expandToInclude(
+      Rect.fromCircle(
+          center: rect.center, radius: kMinInteractiveDimension / 2),
+    );
+    final RelativeRect padding = RelativeRect.fromLTRB(
+      math.max((interactiveRect.width - rect.width) / 2, 0),
+      math.max((interactiveRect.height - rect.height) / 2, 0),
+      math.max((interactiveRect.width - rect.width) / 2, 0),
+      math.max((interactiveRect.height - rect.height) / 2, 0),
+    );
+
     final handlerRect = selectable.transformRectToGlobal(
-      Rect.fromLTWH(
-        rect.left - extend,
-        rect.top - extend,
-        extend * 2,
-        rect.height + 2 * extend,
+      Rect.fromLTRB(
+        rect.left - padding.left,
+        rect.top - padding.top,
+        rect.right + padding.right,
+        rect.bottom + padding.bottom,
       ),
       shiftWithBaseOffset: true,
     );
