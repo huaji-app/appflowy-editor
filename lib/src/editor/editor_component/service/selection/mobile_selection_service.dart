@@ -338,12 +338,16 @@ class _MobileSelectionServiceWidgetState
       return;
     }
 
-    final panEndOffset = details.globalPosition;
-
     final dy = editorState.service.scrollService?.dy;
     final panStartOffset = dy == null
         ? _panStartOffset!
         : _panStartOffset!.translate(0, _panStartScrollDy! - dy);
+    final diffY = details.globalPosition.dy - panStartOffset.dy;
+    // y 轴移动的阈值，当超过这个阈值时才是认为进行了移动
+    const thresholdY = 20;
+    final panEndOffset = diffY.abs() > thresholdY
+        ? details.globalPosition
+        : details.globalPosition.translate(0, -diffY);
     final end = getNodeInOffset(panEndOffset)
         ?.selectable
         ?.getSelectionInRange(panStartOffset, panEndOffset)
