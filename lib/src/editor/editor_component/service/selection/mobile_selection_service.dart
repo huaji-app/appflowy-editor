@@ -227,20 +227,10 @@ class _MobileSelectionServiceWidgetState
     if (_isOverlayOnHandler(
           details.globalPosition,
           MobileSelectionHandlerType.cursorHandler,
+          scaleHandlerRect: false,
         ) &&
         editorState.selection != null) {
       editorState.contextMenuNotifier.value = editorState.selection;
-      return;
-    }
-
-    if (_isOverlayOnHandler(
-          details.globalPosition,
-          MobileSelectionHandlerType.cursorHandler,
-        ) ||
-        _isOverlayOnHandler(
-          details.globalPosition,
-          MobileSelectionHandlerType.rightHandler,
-        )) {
       return;
     }
 
@@ -493,7 +483,11 @@ class _MobileSelectionServiceWidgetState
     return node;
   }
 
-  bool _isOverlayOnHandler(Offset point, MobileSelectionHandlerType type) {
+  bool _isOverlayOnHandler(
+    Offset point,
+    MobileSelectionHandlerType type, {
+    bool scaleHandlerRect = true,
+  }) {
     final selection = editorState.selection;
     if (selection == null) {
       return false;
@@ -533,26 +527,41 @@ class _MobileSelectionServiceWidgetState
         break;
     }
 
-    final Rect interactiveRect = rect.expandToInclude(
-      Rect.fromCircle(
-          center: rect.center, radius: kMinInteractiveDimension / 2),
-    );
-    final RelativeRect padding = RelativeRect.fromLTRB(
-      math.max((interactiveRect.width - rect.width) / 2, 0),
-      math.max((interactiveRect.height - rect.height) / 2, 0),
-      math.max((interactiveRect.width - rect.width) / 2, 0),
-      math.max((interactiveRect.height - rect.height) / 2, 0),
-    );
+    Rect handlerRect;
 
-    final handlerRect = selectable.transformRectToGlobal(
-      Rect.fromLTRB(
-        rect.left - padding.left,
-        rect.top - padding.top,
-        rect.right + padding.right,
-        rect.bottom + padding.bottom,
-      ),
-      shiftWithBaseOffset: true,
-    );
+    if (scaleHandlerRect) {
+      final Rect interactiveRect = rect.expandToInclude(
+        Rect.fromCircle(
+            center: rect.center, radius: kMinInteractiveDimension / 2),
+      );
+      final RelativeRect padding = RelativeRect.fromLTRB(
+        math.max((interactiveRect.width - rect.width) / 2, 0),
+        math.max((interactiveRect.height - rect.height) / 2, 0),
+        math.max((interactiveRect.width - rect.width) / 2, 0),
+        math.max((interactiveRect.height - rect.height) / 2, 0),
+      );
+
+      handlerRect = selectable.transformRectToGlobal(
+        Rect.fromLTRB(
+          rect.left - padding.left,
+          rect.top - padding.top,
+          rect.right + padding.right,
+          rect.bottom + padding.bottom,
+        ),
+        shiftWithBaseOffset: true,
+      );
+    } else {
+      const expanded = 2;
+      handlerRect = selectable.transformRectToGlobal(
+        Rect.fromLTRB(
+          rect.left - expanded,
+          rect.top - expanded,
+          rect.right + expanded,
+          rect.bottom + expanded,
+        ),
+        shiftWithBaseOffset: true,
+      );
+    }
 
     return handlerRect.contains(point);
   }
