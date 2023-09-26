@@ -23,7 +23,7 @@ class MobileSelectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const handlerWidth = 2.0;
-    const handlerBallWidth = 8.0;
+    const handlerBallWidth = 10.0;
     // left and right add 2px to avoid the selection area from being too narrow
     var adjustedRect = rect;
     if (showLeftHandler || showRightHandler) {
@@ -141,12 +141,15 @@ class _DragHandler extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       children: [
         if (showLeftHandler)
-          Container(
-            width: handlerBallWidth,
-            height: handlerBallWidth,
-            decoration: BoxDecoration(
-              color: handlerColor,
-              shape: BoxShape.circle,
+          Transform.translate(
+            offset: const Offset(0, 4),
+            child: Container(
+              width: handlerBallWidth,
+              height: handlerBallWidth,
+              decoration: BoxDecoration(
+                color: handlerColor,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
         if (showRightHandler)
@@ -160,12 +163,15 @@ class _DragHandler extends StatelessWidget {
           height: handlerHeight - 2.0 * handlerBallWidth,
         ),
         if (showRightHandler)
-          Container(
-            width: handlerBallWidth,
-            height: handlerBallWidth,
-            decoration: BoxDecoration(
-              color: handlerColor,
-              shape: BoxShape.circle,
+          Transform.translate(
+            offset: const Offset(0, -4),
+            child: Container(
+              width: handlerBallWidth,
+              height: handlerBallWidth,
+              decoration: BoxDecoration(
+                color: handlerColor,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
         if (showLeftHandler)

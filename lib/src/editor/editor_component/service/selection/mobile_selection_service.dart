@@ -571,31 +571,37 @@ class _MobileSelectionServiceWidgetState
 
   MobileSelectionHandlerType _getCloserHandler(Offset point) {
     final selection = editorState.selection;
-    if (selection == null) {
+    if (selection == null || selection.isCollapsed) {
       return MobileSelectionHandlerType.cursorHandler;
     }
-    final selectable =
+    final leftSelectable =
         editorState.getNodeAtPath(selection.start.path)?.selectable;
-    if (selectable == null) {
-      return MobileSelectionHandlerType.cursorHandler;
-    }
+    final rightSelectable =
+        editorState.getNodeAtPath(selection.end.path)?.selectable;
 
-    var leftHandlerRect = selectable.getCursorRectInPosition(
+    var leftHandlerRect = leftSelectable!.getCursorRectInPosition(
       selection.start,
       shiftWithBaseOffset: true,
     );
 
-    var rightHandlerRect = selectable.getCursorRectInPosition(
+    var rightHandlerRect = rightSelectable!.getCursorRectInPosition(
       selection.end,
       shiftWithBaseOffset: true,
     );
-    leftHandlerRect = selectable.transformRectToGlobal(leftHandlerRect!);
-    rightHandlerRect = selectable.transformRectToGlobal(rightHandlerRect!);
-    final diffLeft = (point.dx - leftHandlerRect.center.dx).abs();
-    final diffRight = (point.dx - rightHandlerRect.center.dx).abs();
+
+    leftHandlerRect = leftSelectable.transformRectToGlobal(leftHandlerRect!);
+    rightHandlerRect = rightSelectable.transformRectToGlobal(rightHandlerRect!);
+    final diffLeft = point.distanceTo(leftHandlerRect.center);
+    final diffRight = point.distanceTo(rightHandlerRect.center);
 
     return diffLeft < diffRight
         ? MobileSelectionHandlerType.leftHandler
         : MobileSelectionHandlerType.rightHandler;
+  }
+}
+
+extension on Offset {
+  distanceTo(Offset other) {
+    return math.sqrt(math.pow(dx - other.dx, 2) + math.pow(dy - other.dy, 2));
   }
 }
