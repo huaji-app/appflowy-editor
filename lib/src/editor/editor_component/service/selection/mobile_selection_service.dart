@@ -294,6 +294,7 @@ class _MobileSelectionServiceWidgetState
     final position = details.globalPosition;
     final selection = editorState.selection;
     _panStartSelection = selection;
+    final closeHandler = _getCloserHandler(position);
     if (selection == null) {
       dragMode = MobileSelectionDragMode.none;
     } else if (selection.isCollapsed &&
@@ -302,15 +303,17 @@ class _MobileSelectionServiceWidgetState
           MobileSelectionHandlerType.cursorHandler,
         )) {
       dragMode = MobileSelectionDragMode.cursor;
-    } else if (_isOverlayOnHandler(
-      position,
-      MobileSelectionHandlerType.leftHandler,
-    )) {
+    } else if (closeHandler == MobileSelectionHandlerType.leftHandler &&
+        _isOverlayOnHandler(
+          position,
+          MobileSelectionHandlerType.leftHandler,
+        )) {
       dragMode = MobileSelectionDragMode.leftSelectionHandler;
-    } else if (_isOverlayOnHandler(
-      position,
-      MobileSelectionHandlerType.rightHandler,
-    )) {
+    } else if (closeHandler == MobileSelectionHandlerType.rightHandler &&
+        _isOverlayOnHandler(
+          position,
+          MobileSelectionHandlerType.rightHandler,
+        )) {
       dragMode = MobileSelectionDragMode.rightSelectionHandler;
     } else {
       dragMode = MobileSelectionDragMode.none;
@@ -564,5 +567,35 @@ class _MobileSelectionServiceWidgetState
     }
 
     return handlerRect.contains(point);
+  }
+
+  MobileSelectionHandlerType _getCloserHandler(Offset point) {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return MobileSelectionHandlerType.cursorHandler;
+    }
+    final selectable =
+        editorState.getNodeAtPath(selection.start.path)?.selectable;
+    if (selectable == null) {
+      return MobileSelectionHandlerType.cursorHandler;
+    }
+
+    var leftHandlerRect = selectable.getCursorRectInPosition(
+      selection.start,
+      shiftWithBaseOffset: true,
+    );
+
+    var rightHandlerRect = selectable.getCursorRectInPosition(
+      selection.end,
+      shiftWithBaseOffset: true,
+    );
+    leftHandlerRect = selectable.transformRectToGlobal(leftHandlerRect!);
+    rightHandlerRect = selectable.transformRectToGlobal(rightHandlerRect!);
+    final diffLeft = (point.dx - leftHandlerRect.center.dx).abs();
+    final diffRight = (point.dx - rightHandlerRect.center.dx).abs();
+
+    return diffLeft < diffRight
+        ? MobileSelectionHandlerType.leftHandler
+        : MobileSelectionHandlerType.rightHandler;
   }
 }
