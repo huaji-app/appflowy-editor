@@ -55,6 +55,7 @@ class _MobileSelectionServiceWidgetState
 
   /// Pan
   Offset? _panStartOffset;
+  Offset? _panStartRectCenter;
   double? _panStartScrollDy;
   Selection? _panStartSelection;
 
@@ -303,18 +304,21 @@ class _MobileSelectionServiceWidgetState
           MobileSelectionHandlerType.cursorHandler,
         )) {
       dragMode = MobileSelectionDragMode.cursor;
+      _panStartRectCenter = _getHandlerRect()?.center;
     } else if (closeHandler == MobileSelectionHandlerType.leftHandler &&
         _isOverlayOnHandler(
           position,
           MobileSelectionHandlerType.leftHandler,
         )) {
       dragMode = MobileSelectionDragMode.leftSelectionHandler;
+      _panStartRectCenter = _getHandlerRect()?.center;
     } else if (closeHandler == MobileSelectionHandlerType.rightHandler &&
         _isOverlayOnHandler(
           position,
           MobileSelectionHandlerType.rightHandler,
         )) {
       dragMode = MobileSelectionDragMode.rightSelectionHandler;
+      _panStartRectCenter = _getHandlerRect()?.center;
     } else {
       dragMode = MobileSelectionDragMode.none;
     }
@@ -336,14 +340,17 @@ class _MobileSelectionServiceWidgetState
         ? _panStartOffset!
         : _panStartOffset!.translate(0, _panStartScrollDy! - dy);
     final diffY = details.globalPosition.dy - panStartOffset.dy;
+    final diffX = details.globalPosition.dx - panStartOffset.dx;
     // y 轴移动的阈值，当超过这个阈值时才是认为进行了移动
     const thresholdY = 20;
-    final panEndOffset = diffY.abs() > thresholdY
-        ? details.globalPosition
-        : details.globalPosition.translate(0, -diffY);
+
+    final panEndOffset = diffY.abs() < thresholdY
+        ? _panStartRectCenter!.translate(diffX, 0)
+        : _panStartRectCenter!.translate(diffX, diffY);
+
     final end = getNodeInOffset(panEndOffset)
         ?.selectable
-        ?.getSelectionInRange(panStartOffset, panEndOffset)
+        ?.getSelectionInRange(_panStartRectCenter!, panEndOffset)
         .end;
 
     if (end != null) {
@@ -486,6 +493,46 @@ class _MobileSelectionServiceWidgetState
     return node;
   }
 
+  Rect? _getHandlerRect() {
+    Rect? rect;
+    final selection = editorState.selection;
+    if (selection == null) {
+      return rect;
+    }
+
+    switch (dragMode) {
+      case MobileSelectionDragMode.cursor:
+      case MobileSelectionDragMode.leftSelectionHandler:
+        final selectable =
+            editorState.getNodeAtPath(selection.start.path)?.selectable;
+        if (selectable == null) {
+          return rect;
+        }
+        rect = selectable.getCursorRectInPosition(
+          selection.start,
+          shiftWithBaseOffset: true,
+        );
+        rect = selectable.transformRectToGlobal(rect!);
+        break;
+      case MobileSelectionDragMode.rightSelectionHandler:
+        final selectable =
+            editorState.getNodeAtPath(selection.end.path)?.selectable;
+        if (selectable == null) {
+          return rect;
+        }
+        rect = selectable.getCursorRectInPosition(
+          selection.end,
+          shiftWithBaseOffset: true,
+        );
+        rect = selectable.transformRectToGlobal(rect!);
+        break;
+      case MobileSelectionDragMode.none:
+        break;
+    }
+
+    return rect;
+  }
+
   bool _isOverlayOnHandler(
     Offset point,
     MobileSelectionHandlerType type, {
@@ -534,8 +581,7 @@ class _MobileSelectionServiceWidgetState
 
     if (scaleHandlerRect) {
       final Rect interactiveRect = rect.expandToInclude(
-        Rect.fromCircle(
-            center: rect.center, radius: kMinInteractiveDimension / 2),
+        Rect.fromCircle(center: rect.center, radius: 30),
       );
       final RelativeRect padding = RelativeRect.fromLTRB(
         math.max((interactiveRect.width - rect.width) / 2, 0),
