@@ -30,6 +30,10 @@ Future<void> onDelete(
     // 处理前一个元素是自定义 Node 的情况
     final lastNode = node?.previous;
 
+    if (lastNode == null) {
+      return;
+    }
+
     if (blockTypes.contains(lastNode?.type)) {
       final transaction = editorState.transaction;
       transaction.deleteNode(lastNode!);
